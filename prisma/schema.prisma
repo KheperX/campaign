@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  
+}
+
+
+model User {
+  user_id    Int      @id @default(autoincrement())
+  email      String?  @unique
+  password   String
+  role       String   @default("USER")
+  tier       String   @default("Silver")
+  createdAt  DateTime @default(now())
+  
+  campaigns  CampaignUser[]
+  tickets    Ticket[]        // เพิ่มความสัมพันธ์กับ Ticket
+}
+
+model Campaign {
+  campaign_id         Int        @id @default(autoincrement())
+  campaign_name       String
+  campaign_start_date DateTime
+  campaign_end_date   DateTime
+  daily_limit         Int        
+  campaign_type       CampaignType? @default(Reward)  // ใช้ default หรือทำให้ optional
+  tier_requirement    Tier?      
+  tickets             Ticket[]   
+
+  users               CampaignUser[]
+}
+
+model Ticket {
+  ticket_id   Int       @id @default(autoincrement())
+  ticket_code String    @unique
+  campaign_id Int
+  campaign    Campaign  @relation(fields: [campaign_id], references: [campaign_id])
+  user_id     Int?      // ทำให้เป็น optional เพื่อให้สามารถสร้าง Ticket โดยยังไม่ระบุผู้ใช้ได้
+  user        User?     @relation(fields: [user_id], references: [user_id])
+  status      TicketStatus @default(AVAILABLE)
+  createdAt   DateTime  @default(now())
+  usedAt      DateTime?
+}
+
+model CampaignUser {
+  campaign_id Int
+  user_id     Int
+  used_count  Int
+  user        User      @relation(fields: [user_id], references: [user_id])
+  campaign    Campaign  @relation(fields: [campaign_id], references: [campaign_id])
+
+  @@id([campaign_id, user_id])
+}
+
+enum CampaignType {
+  Reward
+  Privilege
+}
+
+enum Tier {
+  Silver
+  Gold
+  Platinum
+}
+
+enum TicketStatus {
+  AVAILABLE
+  USED
+  EXPIRED
+}
+
+
+
+
