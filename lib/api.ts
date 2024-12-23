@@ -1,4 +1,5 @@
-import prisma from './prisma'
+import { prisma } from "../lib/prismaClient";
+
 
 export async function getCampaigns() {
   return prisma.campaign.findMany()

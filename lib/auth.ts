@@ -1,16 +1,20 @@
-'use server'
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
-import { signToken, verifyToken } from "../utils/jwt";
-import { cookies } from 'next/headers'
+import { signToken } from "../utils/jwt";
 
 const prisma = new PrismaClient();
 
+/**
+ * Validate email format
+ */
 function validateEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
+/**
+ * Register a new user
+ */
 export async function registerUser({
   email,
   password,
@@ -18,8 +22,10 @@ export async function registerUser({
   email: string;
   password: string;
 }) {
+  // Normalize email
   const normalizedEmail = email.toLowerCase();
 
+  // Validate email and password
   if (!validateEmail(normalizedEmail)) {
     throw new Error("Invalid email format");
   }
@@ -27,6 +33,7 @@ export async function registerUser({
     throw new Error("Password must be at least 8 characters long");
   }
 
+  // Check for existing user
   const existingUser = await prisma.user.findUnique({
     where: { email: normalizedEmail },
   });
@@ -35,6 +42,7 @@ export async function registerUser({
     throw new Error("User already exists");
   }
 
+  // Hash password and create user
   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = await prisma.user.create({
     data: {
@@ -53,8 +61,10 @@ export async function loginUser({
   email: string;
   password: string;
 }) {
+  // Normalize email
   const normalizedEmail = email.toLowerCase();
 
+  // Validate email and password
   if (!validateEmail(normalizedEmail)) {
     throw new Error("Invalid email format");
   }
@@ -62,6 +72,7 @@ export async function loginUser({
     throw new Error("Password is required");
   }
 
+  // Find user
   const user = await prisma.user.findUnique({
     where: { email: normalizedEmail },
   });
@@ -70,59 +81,22 @@ export async function loginUser({
     throw new Error("Invalid email or password");
   }
 
+  // Verify password
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     throw new Error("Invalid email or password");
   }
 
+  // Generate access token
   const accessToken = signToken(
     {
       userId: user.user_id,
       email: user.email,
       role: user.role,
     },
-    "1h"
+    "1h" 
   );
 
-  // Set the token in an HTTP-only cookie
-  cookies().set('token', accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 3600, // 1 hour
-    path: '/',
-  });
-
-  return { user };
+  return { accessToken, user };
 }
-
-export async function logoutUser() {
-  cookies().delete('token');
-}
-
-export async function getCurrentUser() {
-  const token = cookies().get('token')?.value;
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const decoded = await verifyToken(token);
-    const user = await prisma.user.findUnique({
-      where: { user_id: decoded.userId },
-    });
-
-    if (!user) {
-      return null;
-    }
-
-    return user;
-  } catch (error) {
-    return null;
-  }
-}
-
-export { verifyToken };
-

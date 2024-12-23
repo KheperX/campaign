@@ -1,31 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { loginUser } from '@/lib/auth';
+import { NextApiRequest, NextApiResponse } from "next";
+import { loginUser } from "../../../lib/auth";
 
-export async function POST(request: NextRequest) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
+
   try {
-    const body = await request.json();
-    const { email, password } = body;
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { message: "Email and password are required" },
-        { status: 400 }
-      );
-    }
-
-    const { user } = await loginUser({ email, password });
-
-    // The access token is now set as an HTTP-only cookie by loginUser
-    // We just need to return the user data
-    return NextResponse.json({ user }, { status: 200 });
+    const { accessToken, user } = await loginUser({ email, password });
+    return res.status(200).json({ accessToken, user });
   } catch (error) {
     console.error("Login error:", error);
-    
-    if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 401 });
-    } else {
-      return NextResponse.json({ message: "An unexpected error occurred" }, { status: 500 });
-    }
+    return res.status(401).json({ message: "Invalid email or password" });
   }
 }
-

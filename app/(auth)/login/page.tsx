@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Cookies from 'js-cookie'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -19,6 +20,11 @@ export default function LoginPage() {
       })
 
       if (response.ok) {
+        const data = await response.json()
+        
+        // เก็บ token ใน cookie
+        Cookies.set('token', data.accessToken, { expires: 1, secure: true })
+
         router.push('/dashboard')
       } else {
         const data = await response.json()
@@ -83,4 +89,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
