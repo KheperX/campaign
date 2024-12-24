@@ -1,8 +1,8 @@
-import Link from 'next/link'
-import { getCampaigns } from '@/lib/api'
+import Link from "next/link";
+import { getCampaigns } from "@/lib/api";
 
 export default async function DashboardPage() {
-  const campaigns = await getCampaigns()
+  const campaigns = await getCampaigns();
 
   return (
     <div>
@@ -16,16 +16,28 @@ export default async function DashboardPage() {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Name
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Start Date
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         End Date
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Type
                       </th>
                       <th scope="col" className="relative px-6 py-3">
@@ -37,19 +49,34 @@ export default async function DashboardPage() {
                     {campaigns.map((campaign) => (
                       <tr key={campaign.campaign_id}>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{campaign.campaign_name}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {campaign.campaign_name}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{new Date(campaign.campaign_start_date).toLocaleDateString()}</div>
+                          <div className="text-sm text-gray-900">
+                            {new Date(
+                              campaign.campaign_start_date
+                            ).toLocaleDateString()}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{new Date(campaign.campaign_end_date).toLocaleDateString()}</div>
+                          <div className="text-sm text-gray-900">
+                            {new Date(
+                              campaign.campaign_end_date
+                            ).toLocaleDateString()}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{campaign.campaign_type}</div>
+                          <div className="text-sm text-gray-900">
+                            {campaign.campaign_type}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Link href={`/campaigns/${campaign.campaign_id}`} className="text-indigo-600 hover:text-indigo-900">
+                          <Link
+                            href={`/campaigns/${campaign.campaign_id}`}
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
                             View
                           </Link>
                         </td>
@@ -63,6 +90,5 @@ export default async function DashboardPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

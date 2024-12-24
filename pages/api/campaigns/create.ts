@@ -1,3 +1,5 @@
+// pages/api/campaigns/create.ts
+"use server";
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "../../../lib/prismaClient";
 import { v4 as uuidv4 } from "uuid";
@@ -39,7 +41,6 @@ export default async function handler(
   }
 
   try {
-    // Create Campaign
     const newCampaign = await prisma.campaign.create({
       data: {
         campaign_name,

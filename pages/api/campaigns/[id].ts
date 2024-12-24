@@ -32,6 +32,8 @@ async function deleteCampaign(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
+export default deleteCampaign;
+
 async function updateCampaign(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
 
